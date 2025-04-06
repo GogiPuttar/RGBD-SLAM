@@ -16,8 +16,10 @@ The original `associate.py` has been modified particularly at lines `86` and `87
 
 Inside the `rgbd_dataset_...` directory(s) run:
 ```
-python3 ../associate.py rgb.txt depth.txt > associations.txt
+python3 ../tools/associate.py rgb.txt depth.txt > associations.txt
 ```
 
 This will generate an associations.txt file linking corresponding RGB and depth images.
+
+### Optional:
 
