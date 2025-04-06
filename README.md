@@ -22,4 +22,9 @@ python3 ../tools/associate.py rgb.txt depth.txt > associations.txt
 This will generate an associations.txt file linking corresponding RGB and depth images.
 
 ### Optional:
-
+### `add_pointclouds_to_bagfile.py`
+### `evaluate_ate.py`
+### `evaluate_rpe.py`
+### `generate_pointcloud.py`
+### `generate_registered_pointcloud.py`
+### `plot_trajectory_into_image.py`
