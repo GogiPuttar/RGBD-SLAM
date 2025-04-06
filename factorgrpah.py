@@ -1,0 +1,67 @@
+import gtsam
+import numpy as np
+import matplotlib.pyplot as plt
+from odometry import extract_odometry
+
+def to_pose3(T):
+    R = gtsam.Rot3(T[:3, :3])
+    t = gtsam.Point3(T[0, 3], T[1, 3], T[2, 3])
+    return gtsam.Pose3(R, t)
+
+def build_graph(poses):
+    graph = gtsam.NonlinearFactorGraph()
+    initial = gtsam.Values()
+
+    # Noise models
+    prior_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([1e-6]*6))
+    odom_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.05]*6))  # tune as needed
+
+    # Add prior on first pose
+    graph.add(gtsam.PriorFactorPose3(0, to_pose3(poses[0]), prior_noise))
+    initial.insert(0, to_pose3(poses[0]))
+
+    for i in range(1, len(poses)):
+        T_prev = poses[i-1]
+        T_curr = poses[i]
+        T_rel = np.linalg.inv(T_prev) @ T_curr
+
+        pose_rel = to_pose3(T_rel)
+        graph.add(gtsam.BetweenFactorPose3(i-1, i, pose_rel, odom_noise))
+        initial.insert(i, to_pose3(poses[i]))
+
+    return graph, initial
+
+def optimize_and_plot(graph, initial):
+    optimizer = gtsam.LevenbergMarquardtOptimizer(graph, initial)
+    result = optimizer.optimize()
+
+    # Plot
+    xs = []
+    ys = []
+    zs = []
+
+    for i in range(initial.size()):
+        pose = result.atPose3(i)
+        t = pose.translation()
+        xs.append(t[0])
+        ys.append(t[1])
+        zs.append(t[2])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(xs, ys, zs, label="Optimized trajectory", color="blue")
+    ax.scatter(xs[0], ys[0], zs[0], color="green", label="Start")
+    ax.scatter(xs[-1], ys[-1], zs[-1], color="red", label="End")
+    ax.legend()
+    plt.show()
+
+if __name__ == "__main__":
+
+    dataset_path = "rgbd_dataset_freiburg1_xyz"
+    assoc_file = f"{dataset_path}/associations.txt"
+
+    poses = extract_odometry(dataset_path, assoc_file, max_pairs=100)
+
+    graph, initial = build_graph(poses)
+
+    optimize_and_plot(graph, initial)

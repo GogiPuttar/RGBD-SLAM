@@ -28,3 +28,8 @@ This will generate an associations.txt file linking corresponding RGB and depth 
 ### `generate_pointcloud.py`
 ### `generate_registered_pointcloud.py`
 ### `plot_trajectory_into_image.py`
+
+## Requirements
+```
+pip install open3d numpy gtsam matplotlib
+```
