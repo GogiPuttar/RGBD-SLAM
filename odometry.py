@@ -8,7 +8,7 @@ np.object = object
 np.complex = complex
 
 import open3d as o3d
-
+from tqdm import tqdm
 
 def read_associations(assoc_path):
     rgbd_pairs = []
@@ -32,7 +32,7 @@ def extract_odometry(dataset_path, assoc_file, max_pairs=100):
     
     poses = [np.eye(4)]
     
-    for i in range(1, min(len(assoc), max_pairs)):
+    for i in tqdm(range(1, min(len(assoc), max_pairs)), desc="Computing Odometry"):
         rgb1 = os.path.join(dataset_path, assoc[i-1][1])
         d1   = os.path.join(dataset_path, assoc[i-1][3])
         rgb2 = os.path.join(dataset_path, assoc[i][1])
